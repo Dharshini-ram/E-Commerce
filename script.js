@@ -31,7 +31,7 @@ function renderProducts() {
     div.className = "product";
 
     div.innerHTML = `
-      <img src="${p.image}">
+      <img src="${p.image}" />
       <h4>${p.productname}</h4>
       <p>₹${p.price}</p>
       <button onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
@@ -42,13 +42,14 @@ function renderProducts() {
   });
 }
 
-/* ADD TO CART */
+/* ADD TO CART (Firestore) */
 function addToCart(p) {
   db.collection("cartItems").add({
     productname: p.productname,
     price: p.price,
     image: p.image,
-    quantity: 1
+    quantity: 1,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 }
 
@@ -64,7 +65,7 @@ function buyNow(p) {
   alert("Order placed!");
 }
 
-/* LOAD CART */
+/* LOAD CART (REAL-TIME) */
 db.collection("cartItems").onSnapshot(snapshot => {
   cartItemsDiv.innerHTML = "";
   let total = 0;
@@ -84,7 +85,39 @@ db.collection("cartItems").onSnapshot(snapshot => {
   cartCount.textContent = snapshot.size;
 });
 
-/* PLACE ORDER */
+/* PLACE ORDER + CLEAR CART */
 function placeOrder() {
-  alert("Order placed successfully!");
+  db.collection("cartItems").get().then(snapshot => {
+
+    if (snapshot.empty) {
+      alert("Your cart is empty!");
+      return;
+    }
+
+    let items = [];
+    let total = 0;
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      items.push(data);
+      total += data.price;
+    });
+
+    // Save order
+    db.collection("orders").add({
+      items: items,
+      totalAmount: total,
+      status: "PLACED",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+
+      // 🔥 DELETE CART ITEMS
+      const batch = db.batch();
+      snapshot.forEach(doc => batch.delete(doc.ref));
+      batch.commit();
+
+      alert("Order placed successfully ✅");
+    });
+
+  });
 }
