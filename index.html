@@ -1,42 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>STYLIST – Fashion Store</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <style>
-    body { margin:0; font-family:Arial; background:#f4f4f4; }
-    header { background:black; color:white; text-align:center; padding:20px; }
-    .controls { display:flex; gap:10px; padding:15px; justify-content:center; background:white; flex-wrap:wrap; }
-    input, select { padding:10px; width:200px; }
-    .product-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:20px; padding:20px; }
-    .product { background:white; padding:15px; border-radius:8px; text-align:center; }
-    .product img { width:100%; height:250px; object-fit:cover; border-radius:6px; }
-    .price { color:green; font-weight:bold; font-size:18px; }
-    button { margin-top:10px; padding:10px; width:100%; background:black; color:white; border:none; cursor:pointer; }
-  </style>
+  <meta charset="UTF-8">
+  <title>STYLIST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<header>
-  <h1>STYLIST</h1>
-  <p>Fashion Store</p>
+<!-- TOP NAV -->
+<header class="top-nav">
+  <h2>STYLIST</h2>
 </header>
 
-<div class="controls">
-  <input id="searchInput" placeholder="Search products">
-  <select id="brandFilter"><option value="">All Brands</option></select>
-  <select id="priceFilter">
-    <option value="">All Prices</option>
-    <option value="1000">Below ₹1000</option>
-    <option value="2000">Below ₹2000</option>
-    <option value="3000">Below ₹3000</option>
-  </select>
-</div>
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button onclick="showPage('home')">🏠︎ Home</button>
+  <button onclick="showPage('explore')">🔎︎ Explore</button>
+  <button onclick="showPage('cart')">𖠩 Cart (<span id="cartCount">0</span>)</button>
+</nav>
 
-<main class="product-grid" id="productGrid"></main>
+<!-- HOME PAGE -->
+<section id="home" class="page active">
+  <div class="search-box">
+    <input placeholder="Search your products">
+    <div class="icons">
+      <span> Your Favourite Fashion Store </span>
+      
+    </div>
+  </div>
+
+  <h3 class="section-title">Trending Offers</h3>
+
+  <div class="ads">
+    <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/d690aa241419495.6957be6f2520c.jpg">
+    <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/2510d0235205531.68d2a18469863.jpg">
+    <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/90cb41241072939.694e191cc9cbb.jpg">
+    <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/ff12e2236655243.68f00829c7119.jpg">
+    <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/26fac8241419495.6957be6cf2b63.jpg">
+    <img src="https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/b93705235205531.68d2a1846c822.jpg">
+  </div>
+</section>
+
+<!-- EXPLORE PAGE -->
+<section id="explore" class="page">
+  <h3 class="section-title">Explore Products</h3>
+  <div id="productGrid" class="product-grid"></div>
+</section>
+
+<!-- CART PAGE -->
+<section id="cart" class="page">
+  <h3 class="section-title">My Cart</h3>
+  <div id="cartItems"></div>
+  <h3>Total: ₹<span id="cartTotal">0</span></h3>
+  <button onclick="placeOrder()" class="order-btn">Place Order</button>
+</section>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -44,9 +63,6 @@
 
 <script src="firebase.js"></script>
 <script src="script.js"></script>
-<script src="updateImages.js"></script>
-
-
 
 </body>
 </html>

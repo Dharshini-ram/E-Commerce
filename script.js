@@ -1,72 +1,90 @@
+const pages = document.querySelectorAll(".page");
 const productGrid = document.getElementById("productGrid");
-const brandFilter = document.getElementById("brandFilter");
-const priceFilter = document.getElementById("priceFilter");
-const searchInput = document.getElementById("searchInput");
+const cartItemsDiv = document.getElementById("cartItems");
+const cartTotalSpan = document.getElementById("cartTotal");
+const cartCount = document.getElementById("cartCount");
 
 const products = [];
 
-// Fetch products from Firestore
+/* PAGE SWITCH */
+function showPage(id) {
+  pages.forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* LOAD PRODUCTS */
 db.collection("products").get().then(snapshot => {
   snapshot.forEach(doc => {
     const p = doc.data();
+    p.id = doc.id;
     products.push(p);
-
-    // Populate brand filter
-    if (![...brandFilter.options].some(o => o.value === p.brand.toLowerCase())) {
-      const opt = document.createElement("option");
-      opt.value = p.brand.toLowerCase();
-      opt.textContent = p.brand;
-      brandFilter.appendChild(opt);
-    }
   });
-
-  render(products);
+  renderProducts();
 });
 
-// Render products
-function render(list) {
+/* RENDER PRODUCTS */
+function renderProducts() {
   productGrid.innerHTML = "";
 
-  list.forEach(p => {
-    const img =
-      p.image && p.image.startsWith("http")
-        ? p.image
-        : "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400";
+  products.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "product";
 
-    const card = document.createElement("div");
-    card.className = "product";
-
-    card.innerHTML = `
-      <img src="${img}"
-           alt="${p.productname}"
-           onerror="this.src='https://images.unsplash.com/photo-1521335629791-ce4aec67dd47?w=400'">
-      <h3>${p.productname}</h3>
-      <p><b>Brand:</b> ${p.brand}</p>
-      <p><b>Sizes:</b> ${p.sizes}</p>
-      <p class="price">₹${p.price}</p>
-      <p>${p.discountpercent}% OFF</p>
-      <button>Add to Cart</button>
+    div.innerHTML = `
+      <img src="${p.image}">
+      <h4>${p.productname}</h4>
+      <p>₹${p.price}</p>
+      <button onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
+      <button onclick='buyNow(${JSON.stringify(p)})'>Buy Now</button>
     `;
 
-    productGrid.appendChild(card);
+    productGrid.appendChild(div);
   });
 }
 
-// Filters
-searchInput.addEventListener("input", filter);
-brandFilter.addEventListener("change", filter);
-priceFilter.addEventListener("change", filter);
+/* ADD TO CART */
+function addToCart(p) {
+  db.collection("cartItems").add({
+    productname: p.productname,
+    price: p.price,
+    image: p.image,
+    quantity: 1
+  });
+}
 
-function filter() {
-  const s = searchInput.value.toLowerCase();
-  const b = brandFilter.value;
-  const pr = priceFilter.value;
+/* BUY NOW */
+function buyNow(p) {
+  db.collection("orders").add({
+    items: [p],
+    totalAmount: p.price,
+    status: "PLACED",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
 
-  render(
-    products.filter(p =>
-      (!b || p.brand.toLowerCase() === b) &&
-      (!pr || p.price <= pr) &&
-      JSON.stringify(p).toLowerCase().includes(s)
-    )
-  );
+  alert("Order placed!");
+}
+
+/* LOAD CART */
+db.collection("cartItems").onSnapshot(snapshot => {
+  cartItemsDiv.innerHTML = "";
+  let total = 0;
+
+  snapshot.forEach(doc => {
+    const c = doc.data();
+    total += c.price;
+
+    cartItemsDiv.innerHTML += `
+      <div class="cart-item">
+        ${c.productname} – ₹${c.price}
+      </div>
+    `;
+  });
+
+  cartTotalSpan.textContent = total;
+  cartCount.textContent = snapshot.size;
+});
+
+/* PLACE ORDER */
+function placeOrder() {
+  alert("Order placed successfully!");
 }
