@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Product Images</title>
+</head>
+<body>
+
+<h2>Upload Product Images to Firestore</h2>
+
+<input type="file" id="fileInput" accept=".json" />
+<button onclick="uploadImages()">Upload</button>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyCaPivfAKXKGEOlfmohr2EpbxwkJCTXpRo",
+    authDomain: "ecommerce-store-dc734.firebaseapp.com",
+    projectId: "ecommerce-store-dc734",
+    storageBucket: "ecommerce-store-dc734.appspot.com",
+    messagingSenderId: "483895527397",
+    appId: "1:483895527397:web:50768f8c0294938fb3d10c"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  async function uploadImages() {
+    const file = document.getElementById("fileInput").files[0];
+    if (!file) {
+      alert("Select JSON file");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async function (e) {
+      const data = JSON.parse(e.target.result);
+
+      for (const item of data) {
+        try {
+          await db.collection("products")
+            .doc(item.productId)
+            .set(
+              { image: item.image },
+              { merge: true }   // ✅ SAFE replace
+            );
+
+          console.log("✅ Updated:", item.productId);
+        } catch (err) {
+          console.error("❌ Failed:", item.productId, err);
+        }
+      }
+
+      alert("🎉 All images uploaded successfully!");
+    };
+
+    reader.readAsText(file);
+  }
+</script>
+
+</body>
+</html>

@@ -19,6 +19,7 @@
   <button onclick="showPage('home')">🏠︎ Home</button>
   <button onclick="showPage('explore')">🔎︎ Explore</button>
   <button onclick="showPage('cart')">𖠩 Cart (<span id="cartCount">0</span>)</button>
+  <button onclick="showPage('account')">👤 Account</button>
 </nav>
 
 <!-- HOME PAGE -->
@@ -55,6 +56,13 @@
   <div id="cartItems"></div>
   <h3>Total: ₹<span id="cartTotal">0</span></h3>
   <button onclick="placeOrder()" class="order-btn">Place Order</button>
+</section>
+
+<!-- ACCOUNT -->
+<section id="account" class="page">
+  <h3>My Account</h3>
+  <p><b>Name:</b> <span id="userName">Guest</span></p>
+  <p><b>Email:</b> <span id="userEmail">logged in</span></p>
 </section>
 
 <!-- Firebase -->
